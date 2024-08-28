@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
   // It0, Iterator 0, iterates through the list of artists.
   // It1, Iterator 1, iterates through the list of albums.
   // It2, Iterator 2, iterates through the songs in the album
-  for (map<string, Artist>::const_iterator it0 = listOfArtists.begin();
+  for (map<string, Artist>::iterator it0 = listOfArtists.begin();
        it0 != listOfArtists.end(); ++it0) {
     // Accessing the first and second members of the map iterator, it0->first is
     // the artist name, it0->second is the object.
@@ -145,14 +145,14 @@ int main(int argc, char *argv[]) {
 
     // Iterate over albums of the current artist, it1->first is the album name,
     // it1->second is the object.
-    for (map<string, Album>::const_iterator it1 = it0->second.albums.begin();
+    for (map<string, Album>::iterator it1 = it0->second.albums.begin();
          it1 != it0->second.albums.end(); ++it1) {
       cout << "        " << it1->first << ": " << it1->second.nsongs << ", "
            << convertTimeToString(it1->second.time) << endl;
 
       // Iterate over songs of the current album, it2->first is the song name,
       // it2->second is the object.
-      for (map<int, Song>::const_iterator it2 = it1->second.songs.begin();
+      for (map<int, Song>::iterator it2 = it1->second.songs.begin();
            it2 != it1->second.songs.end(); ++it2) {
         cout << "                " << it2->first << ". " << it2->second.title
              << ": " << convertTimeToString(it2->second.time) << endl;
