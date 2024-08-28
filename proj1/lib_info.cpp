@@ -37,6 +37,7 @@ struct Artist {
 };
 
 // Replace underscore function
+// https://www.quora.com/How-do-you-replace-a-character-in-a-string-in-C#:~:text=std%3A%3Acout%20%3C%3C%20str%20%3C,%2F%2F%20Output%3A%20Hella%2C%20warld!&text=Mar%2026-,In%20C%2B%2B%2C%20you%20can%20replace%20a%20character%20in%20a,using%20the%20find%20(%20)%20function.
 void replaceUnderscore(string &str) {
   replace(str.begin(), str.end(), '_', ' ');
 }
