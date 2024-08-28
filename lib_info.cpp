@@ -1,11 +1,15 @@
 // Name: Jeffrey Chen
-// Date: 8/26/2024
-// Overview:
+// Partner: Aidan Feyerherm
+// Date: 8/27/2024
+// Overview: Using maps to track multiple structs or objects to
+// lexicographically print everything. Citation:
+// https://www.geeksforgeeks.org/references-in-cpp/
 
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <list>
 #include <map>
 #include <sstream>
 #include <string>
@@ -32,10 +36,9 @@ struct Artist {
   int nsongs;
 };
 
-// replace underscore function
-// https://www.quora.com/How-do-you-replace-a-character-in-a-string-in-C#:~:text=Using%20Loop%20%3A,character%20you%20want%20to%20replace.&text=std%3A%3Acout%20%3C%3C%20str%20%3C,%2F%2F%20Output%3A%20Hella%2C%20warld!&text=To%20replace%20a%20character%20in%20a%20C%2B%2B%20string%2C%20use%20the,specific%20index%20using%20array%20notation.
-void replaceUnderscore(string &string) {
-  replace(string.begin(), string.end(), '_', ' ');
+// Replace underscore function
+void replaceUnderscore(string &str) {
+  replace(str.begin(), str.end(), '_', ' ');
 }
 
 std::string convertTimeToString(int intTime) {
@@ -45,7 +48,6 @@ std::string convertTimeToString(int intTime) {
   stringstream minutesStream;
   stringstream secondsStream;
 
-  // for the minutes portion
   minutesStream << remainingMinutes;
   string minutes = minutesStream.str();
 
@@ -56,8 +58,6 @@ std::string convertTimeToString(int intTime) {
 }
 
 int convertTimeToInt(string stringTime) {
-  // find to find the colon position, substr to make a seperate string, stoi to
-  // convert integer
   int colon = stringTime.find(":");
   string stringMinutes = stringTime.substr(0, colon);
   string stringSeconds = stringTime.substr(colon + 1);
@@ -69,41 +69,95 @@ int convertTimeToInt(string stringTime) {
 }
 
 int main(int argc, char *argv[]) {
-  string file;
-  cout << "lib_info ";
-  cin >> file;
+  string filename = argv[1];
+  ifstream infile(filename);
 
-  // connects to the file
-  std::ifstream infile;
-  std::string line;
-  infile.open(file);
+  string line;
 
-  // while it is able to read the entire line
+  // When the struct or object inside the map reaches end of lifetime (or hits
+  // end of scope), a map creates a copy of the object or struct and thus is why
+  // we are able to track it and do not need new keyword. The map manages the
+  // lifetime of its elements independently of the variables used to insert
+  // those elements
+  map<string, Artist> listOfArtists;
+  map<string, Album> listOfAlbums;
+
   while (getline(infile, line)) {
-    // Title	Time (m:ss)	Artist	Album	Genre	Track
-
     stringstream ss(line);
-    string temp;
 
-    // instances a new Song struct
-    Song *song = new Song();
-    ss >> temp;
-    replaceUnderscore(temp);
-    song->title = temp;
+    // Parse the line into string variables
+    string title, time, artistName, albumName, genre, track;
 
-    ss >> temp;
+    ss >> title >> time >> artistName >> albumName >> genre >> track;
 
-    // convert the time from string to int
-    int time = convertTimeToInt(temp);
-    song->time = time;
+    // Remove the Underscore
+    replaceUnderscore(title);
+    replaceUnderscore(artistName);
+    replaceUnderscore(albumName);
 
-    // skips everything to get to the track
-    for (int i = 0; i < 3; i++) {
-      getline(ss, temp, ' ');
+    Song song;
+    song.title = title;
+    song.track = stoi(track);
+    song.time = convertTimeToInt(time);
+
+    // If the artist isn't logged, create one and add it to the list.
+    // All artists (key) is mapped to their own respective structs (the value).
+    if (listOfArtists.find(artistName) == listOfArtists.end()) {
+      Artist artist;
+      artist.name = artistName;
+      artist.nsongs = 0;
+      artist.time = 0;
+      listOfArtists[artistName] = artist;
     }
-    ss >> song->track;
+
+    // Creates a reference to the artist
+    // A reference is similar to a pointer but it can be modified
+    Artist &artist = listOfArtists[artistName];
+    // If the album isn't logged, create one and add it to the list.
+    if (artist.albums.find(albumName) == artist.albums.end()) {
+      Album album;
+      album.name = albumName;
+      album.nsongs = 0;
+      album.time = 0;
+      artist.albums[albumName] = album;
+    }
+
+    Album &album = artist.albums[albumName];
+    album.songs[song.track] = song;
+    album.nsongs += 1;
+    album.time += song.time;
+
+    artist.nsongs += 1;
+    artist.time += song.time;
   }
 
-  infile.close();
+  // Print all artists, albums, and songs.
+  // It0, Iterator 0, iterates through the list of artists.
+  // It1, Iterator 1, iterates through the list of albums.
+  // It2, Iterator 2, iterates through the songs in the album
+  for (map<string, Artist>::const_iterator it0 = listOfArtists.begin();
+       it0 != listOfArtists.end(); ++it0) {
+    // Accessing the first and second members of the map iterator, it0->first is
+    // the artist name, it0->second is the object.
+    cout << it0->first << ": " << it0->second.nsongs << ", "
+         << convertTimeToString(it0->second.time) << endl;
+
+    // Iterate over albums of the current artist, it1->first is the album name,
+    // it1->second is the object.
+    for (map<string, Album>::const_iterator it1 = it0->second.albums.begin();
+         it1 != it0->second.albums.end(); ++it1) {
+      cout << "        " << it1->first << ": " << it1->second.nsongs << ", "
+           << convertTimeToString(it1->second.time) << endl;
+
+      // Iterate over songs of the current album, it2->first is the song name,
+      // it2->second is the object.
+      for (map<int, Song>::const_iterator it2 = it1->second.songs.begin();
+           it2 != it1->second.songs.end(); ++it2) {
+        cout << "                " << it2->first << ". " << it2->second.title
+             << ": " << convertTimeToString(it2->second.time) << endl;
+      }
+    }
+  }
+
   return 0;
 }
