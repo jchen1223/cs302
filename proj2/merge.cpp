@@ -16,7 +16,9 @@ void merge_sort(List &l, bool numeric) {
   // merge_sort takes a struct List and whether or not the comparison should be
   // numeric and performs the top-down merge sort algorithm. This function
   // serves as a wrapper or helper function for the recursive msort function.
-  msort(l.head, numeric);
+
+  // Important to set the l.head to the newly sorted linked list.
+  l.head = msort(l.head, numeric);
 }
 
 Node *msort(Node *head, bool numeric) {
@@ -27,41 +29,6 @@ Node *msort(Node *head, bool numeric) {
   if (head == NULL || head->next == NULL) {
     // There is only one node or no node therefore size of 1 or 0.
     return head;
-  }
-
-  if (head->next->next == NULL) {
-    // There is two nodes therefore you compare and possibly swap.
-
-    Node *first = head;
-    Node *second = head->next;
-
-    // If it is a integer comparison
-    if (numeric == true) {
-      if (first->number < second->number) {
-        return head;
-      } else {
-        // If the second node is less than the first node, relink for the second
-        // node to be the first. Sets the second node to point to the first
-        // node.
-        second->next = first;
-        // Sets the first node to point to the end.
-        first->next = NULL;
-        // Sets the head pointer to be the second node making the second node
-        // the new first node, or in this case return second aka new head node.
-        return second;
-      }
-    }
-
-    // Else, it is a string comparison
-    else {
-      if (first->string < second->string) {
-        return head;
-      } else {
-        second->next = first;
-        first->next = NULL;
-        return second;
-      }
-    }
   }
 
   // Divide into left and right sublists
@@ -75,29 +42,36 @@ Node *msort(Node *head, bool numeric) {
   right = msort(right, numeric);
 
   // Combine left and right sublists
-  /* TODO */
-  // (Check this, may or may not be wrong.)
-  return merge(left, right, numeric);
+  Node *sorted = merge(left, right, numeric);
+  return sorted;
 }
 
 void split(Node *head, Node *&left, Node *&right) {
   // Split is a helper function that splits the singly-linked list in half
   // by using the slow and faster pointer trick (aka [tortoise and hare])
+  if (head == nullptr) {
+    left = nullptr;
+    right = nullptr;
+    return;
+  }
+
   Node *fast = head;
   Node *slow = head;
+  Node *lag = NULL;
 
   // fast->next != NULL is for odd number of nodes in the linked list
   // fast != NULL is for even number of nodes in the linked list
   while (fast != NULL && fast->next != NULL) {
+    lag = slow;
     fast = fast->next->next;
     slow = slow->next;
   }
 
-  // The reason why we do not need fast->next = NULL is because
-  // given an odd number of nodes in a linked list,
-  // fast->next = NULL and fast->next->next would be dangerous.
-  right = slow->next;
-  slow->next = NULL;
+  // Slow would be the mid point and thus will be the beginning of our right
+  // side linked list. Having a lag pointer will allow us to make the end of the
+  // left side linked list. Left is always just the head pointer.
+  right = slow;
+  lag->next = NULL;
   left = head;
 }
 
@@ -105,68 +79,52 @@ Node *merge(Node *left, Node *right, bool numeric) {
   // merge is a helper function that combines both the left and right lists and
   // returns the new head of the list.
 
-  // Create a vector to hold the sorted linked list.
-  std::vector<Node *> tempVector;
-  // Create a new Node* head, this will be what will be returned.
-  Node *head;
+  // The idea is inspired by Dr. Emrich's notes
+  // We create a dummy node that will hold the newly sorted linked list.
+  // Then we have a tail set to the dummy node, and we compare the left and
+  // right linked list. Whichever is smaller we add on to our tail and increment
+  // the tail and whichever linked list that was smaller. We return dummy.next
+  // which will be the newly sorted linked list.
+  Node dummy;
+  Node *tail = &dummy;
+  dummy.next = NULL;
 
-  // Integer comparison merge
-  while (left->next != NULL && right->next != NULL) {
+  while (left != NULL && right != NULL) {
+    // Integer merge comparison
     if (numeric == true) {
-      // Compare both nodes, whichever one is less than the other will be pushed
-      // back Whichever linked that was pushed to the vector will move to its
-      // next node.
       if (left->number < right->number) {
-        tempVector.push_back(left);
+        tail->next = left;
         left = left->next;
       } else {
-        tempVector.push_back(right);
+        tail->next = right;
+        right = right->next;
+      }
+    } else {
+      // String merge comparison
+      if (left->string < right->string) {
+        tail->next = left;
+        left = left->next;
+      } else {
+        tail->next = right;
         right = right->next;
       }
     }
-
-    // String comparison merge
-    else {
-      if (left->number < right->number) {
-        tempVector.push_back(left);
-        left = left->next;
-      } else {
-        tempVector.push_back(right);
-        right = right->next;
-      }
-    }
+    tail = tail->next;
   }
 
-  // The other linked list has its end. Then we just add on the other linked
+  // The other linked list is exhausted. Then we just add on the other linked
   // list we are comparing it to.
-  if (right->next == NULL) {
-    tempVector.push_back(left);
-    left = left->next;
-  }
-
-  // Now do the same but this time the left linked list needs to be added on.
-  if (left->next == NULL) {
-    tempVector.push_back(right);
+  while (right != NULL) {
+    tail->next = right;
     right = right->next;
+    tail = tail->next;
   }
-
-  /* TODO */
-  // Think about when one of the linked list hits the end.
-  // It would mean we would have to push the other linked list onto the vector
-  // (if sorted).
-
-  /* TODO */
-  // Perhaps make left and right pointers sorted already before adding them in?
-
-  // Need to add the implementation of correctly linking everything together
-  for (size_t i = 0; i < tempVector.size() - 1; i++) {
-    tempVector[i]->next = tempVector[i + 1];
+  while (left != NULL) {
+    tail->next = left;
+    left = left->next;
+    tail = tail->next;
   }
-
-  // Set the last node to point to null.
-  tempVector[tempVector.size() - 1]->next = NULL;
 
   // Set the head pointer to the newly sorted linked list and finally return
-  head = tempVector[0];
-  return head;
+  return dummy.next;
 }
