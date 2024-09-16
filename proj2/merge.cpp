@@ -18,6 +18,7 @@ void merge_sort(List &l, bool numeric) {
   // serves as a wrapper or helper function for the recursive msort function.
 
   // Important to set the l.head to the newly sorted linked list.
+  // Without it, it returns the sorted right side of the linked list from msort.
   l.head = msort(l.head, numeric);
 }
 
