@@ -53,7 +53,26 @@ bool node_number_compare(
 // by quick, merge and stl
 bool node_string_compare(const Node *a,
                          const Node *b); // implement in list.cpp to avoid
+
 // compile-time issues, merge and stl
+
+// Zach Lecture:
+// Purpose of a .h file; function declaration
+// this is fine
+// void woo();
+// void woo();
+// can declare a function a thousand times in a file, no issues.
+
+// this is not okay
+// void woo() {}
+// void woo() {}
+
+// #include ".h"
+// this is full text replacement
+// goes to the file and adds it.
+
+// there is a way around this issue.
+// you can have the function declaration in the class.
 
 void dump_node(Node *n); // implement in this file (volsort.h) to make it easier
 // for TAs to grade

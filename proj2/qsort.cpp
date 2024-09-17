@@ -39,6 +39,12 @@ int compareIntNodes(const void *a, const void *b) {
   // that points to the node. This is all because qsort wants the pointer of
   // what we are dealing with.
 
+  // Zach Lecture:
+  // A comparison function is needed for comparing things when there are
+  // things that you want to compare that doesn't have a built in comparator.
+  // void* is really a double pointer. It really grabs a pointer to the node*
+  // pointer that is passed through
+
   Node *aNode = *(Node **)a;
   Node *bNode = *(Node **)b;
 
