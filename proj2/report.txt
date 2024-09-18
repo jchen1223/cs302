@@ -1,0 +1,16 @@
+Jeffrey Chen, Aidan Feyerherm, Joey DiSalvo, Cristian Frutos
+Project 02: Sorting List-Based Strings and Numbers
+
+Github: https://github.com/jchen1223/cs302.git
+
+Benchmark values and answers are in the README in the Project 2 folder
+
+Our group worked well together, collaborating and dividing up work to be done
+on each group member's own time. We met up twice to straighten things out and
+wrap up our project before the deadline
+
+Contributions:
+Jeffrey: STL sort, List.cpp, overall revisions
+Aidan: Quick sort, Markdown table, Benchmark questions
+Joey: Merge sort 
+Cristian: Q sort, Benchmark questions
