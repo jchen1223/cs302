@@ -35,3 +35,15 @@ Jeffrey Chen, Aidan Feyerherm, Joey DiSalvo, Cristian Frutos
 | Quick 100000 | .107 sec - 4,881,920 bytes | 
 | Quick 1000000 | 1.755 sec - 48,081,920 bytes | 
 | Quick 10000000 | 86.43 sec - 480,081,920 bytes |
+
+1)
+- Stl time complexity: O(n log n)
+- Qsort time complexity: O(n log n)
+- Merge sort time complexity: O(n log n)
+- Quick sort time complexity: O(n log n)
+
+STL and qsort are two almost identical sorting algorithms that both run in O(n log n) time. STL sort still tends to be faster due to overhead of the function pointer. Merge sort is generally slower than the previous sorting methods but is consistent in O(n log n).     
+
+2) Theoretical analysis assumes random input, but the real world has patterns that might be difficult for quick sort, which struggles with already-sorted or nearly-sorted arrays. However, it can be faster in real applications compared to merge sort due to less operations and better cache utilization. STL sort also has a few optimizations that can impact real-world performance.
+
+3) Based on the benchmarks, merge sort seemed to be the best choice of sorting. Merge sort seemed to complete its task at a relatively similar time to the rest of “faster” methods. As the data size increased its time stayed steady and its memory usage wasn't as high as other methods for the most part.
