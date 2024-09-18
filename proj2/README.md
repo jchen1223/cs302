@@ -18,7 +18,7 @@ Jeffrey Chen, Aidan Feyerherm, Joey DiSalvo, Cristian Frutus
 | QSort 10000 | .011 sec - 641,920 bytes | 
 | QSort 100000 | .097 sec - 5,681,920 bytes | 
 | QSort 1000000 | 1.120 sec - 56,081,920 bytes | 
-| QSort 10000000 | 73.31 sec - 480,080,896 bytes |
+| QSort 10000000 | 73.31 sec - 640,081,920 bytes |
 | - | - |
 | Merge 10 | .003 sec - 82,400 bytes | 
 | Merge 100 | .002 sec - 86,720 bytes | 
