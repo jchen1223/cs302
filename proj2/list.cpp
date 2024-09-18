@@ -50,6 +50,3 @@ void dump_node(Node *n) {
     n->next = n;
   }
 }
-
-// For QSort
-//
