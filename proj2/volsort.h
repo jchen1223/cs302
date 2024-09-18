@@ -24,7 +24,7 @@ struct List {
     if (head == NULL) {
       Node *newNode = new Node();
       newNode->string = s;
-      size += 1;
+      size = 1;
 
       int num = std::stoi(s);
       newNode->number = num;

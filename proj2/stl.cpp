@@ -14,6 +14,11 @@ void stl_sort(List &l, bool numeric) {
   // nodes in the list.
   vector<Node *> vec;
 
+  // Growing a vector using a push function actually copies it into another
+  // vector with a size increase of 2 Quadratic growth. It is much better to do
+  // it iteratively where you set the vector size and then set each
+  // incrementation to the node.
+
   // Fill the vector with all the node *;
   // Node* curr is outside because if it was in the for loop it would always set
   // it to beginning. Node* curr is an independent pointer of head pointer, so

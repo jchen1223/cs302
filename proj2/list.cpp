@@ -1,6 +1,11 @@
 #include "volsort.h"
 
-List::List() { head = nullptr; }
+// Setting size to 0 is important, as it can cause memory problems
+// Comparing size_t i to uninitialized data.
+List::List() {
+  head = nullptr;
+  size = 0;
+}
 
 List::~List() {
   Node *ptr = head;
@@ -45,3 +50,6 @@ void dump_node(Node *n) {
     n->next = n;
   }
 }
+
+// For QSort
+//
