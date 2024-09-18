@@ -12,5 +12,5 @@ wrap up our project before the deadline
 Contributions:
 Jeffrey: STL sort, List.cpp, overall revisions
 Aidan: Quick sort, Markdown table, Benchmark questions
-Joey: Merge sort 
+Joey: Merge sort, Benchmark calculations
 Cristian: Q sort, Benchmark questions
