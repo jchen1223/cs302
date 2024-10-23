@@ -24,12 +24,15 @@ def write_to_file(N, game_map, filename):
     }
     
     with open(filename, 'w') as file:
-        # Write the value of N
-        file.write(f"{N}\n")
-        
+         # Write the number of tiles (always 6)
+        file.write("6\n")
+
         # Write each tile with its fixed count
         for tile, count in tile_counts.items():
             file.write(f"{tile} {count}\n")
+
+        # Write the dimensions of the board
+        file.write(f"{N} {N}\n")  # Format "N N"
         
         # Write the board
         for row in game_map:
