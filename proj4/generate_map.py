@@ -35,6 +35,10 @@ def write_to_file(N, game_map, filename):
         for row in game_map:
             file.write(' '.join(row) + '\n')
 
+        # Write the coordinates
+        file.write("0 0\n")  # Starting coordinates
+        file.write(f"{N-1} {N-1}\n")  # Ending coordinates
+
 def main():
     # Ask for user input
     N = int(input("Enter the size of the map (N): "))
