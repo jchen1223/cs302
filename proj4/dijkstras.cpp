@@ -66,6 +66,10 @@ public:
       Node current = pq.top();
       pq.pop();
 
+      // dist 2d vector is the table we have to store all the weights
+      // prev 2d vector is the culumlative path from the start to said current
+      // node.
+
       // Add all the node's surrounding neighbors
       for (const auto &dir : directions) {
         int newRow = current.row + dir.first;
@@ -83,9 +87,12 @@ public:
       }
     }
 
+    // After finishing Dijkstra's Algorithm,
+    // return the path from staring to end.
     vector<pair<int, int>> path;
     int currentRow = endRow, currentCol = endCol;
 
+    // Building the path vector.
     while (currentRow != -1 && currentCol != -1) {
       path.push_back({currentRow, currentCol});
       int prevRow = prev[currentRow][currentCol].first;
@@ -94,6 +101,8 @@ public:
       currentCol = prevCol;
     }
 
+    // Since we built the path from end to starting,
+    // reversing it will get us the starting to end.
     reverse(path.begin(), path.end());
     return path;
   }
