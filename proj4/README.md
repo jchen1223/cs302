@@ -3,7 +3,7 @@ Jeffrey Chen, Aidan Feyerherm, Joey DiSalvo, Cristian Frutos
 # Benchmark
 
 | N | Elapsed Time | Memory Usage |
-|---------------|-------------------------------------|--------------|
+|-|-|-|
 | 10 |  |  |
 | 20 |  |  |
 | 50 |  |  |
@@ -11,4 +11,3 @@ Jeffrey Chen, Aidan Feyerherm, Joey DiSalvo, Cristian Frutos
 | 200 |  |  |
 | 500 |  |  |
 | 1000 | |  |
-|---------------|-------------------------------------|--------------|
