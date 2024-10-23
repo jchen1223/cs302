@@ -1,5 +1,5 @@
-Jeffrey Chen, Aidan Feyerherm, Joey DiSalvo, Cristian Frutos
-- Project 02: Sorting List-Based Strings and Numbers
+Jeffrey Chen, Aidan Feyerherm
+- Project 04: Path Finding
 # Benchmark
 
 | N | Elapsed Time | Memory Usage |
