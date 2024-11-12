@@ -1,183 +1,234 @@
-// Aidan Feyerherm
 // Project 5 - Word Dice
 // Takes an input of dice with letters, checks a list of
 // words to see if the dice can make those words
 // Last updated: 11/7/2024
 
 #include <iostream>
-#include <fstream>
+#include <cstdlib>
+#include <cstdio>
+#include <map>
+#include <set>
 #include <vector>
 #include <string>
-#include <queue>
-#include <algorithm>
-#include <climits>
-
+#include <fstream>
+#include <deque>
 using namespace std;
 
-const int SOURCE = 0;
-const int SINK = 1;
-
-// Graph class to represent the flow network
-class Graph {
-private:
-	int V;
-	vector<vector<int>> adj;
-	vector<vector<int>> capacity;
-
+class Node {
 public:
-	Graph(int vertices) : V(vertices) {
-		adj.resize(V);
-		capacity.resize(V, vector<int>(V, 0));
-	}
+	int id;
+	vector <int> booleans;
+	set <int> adj;
+	Node *backedge;
+	int dist;
 
-	// Add an edge to the graph
-	void addEdge(int u, int v) {
-		adj[u].push_back(v);
-		adj[v].push_back(u);
-		capacity[u][v] = 1;
-	}
-
-	// Breadth-First Search to find augmenting paths
-	bool bfs(vector<int>& parent) {
-		vector<bool> visited(V, false);
-		queue<int> q;
-		q.push(SOURCE);
-		visited[SOURCE] = true;
-		parent[SOURCE] = -1;
-
-		while (!q.empty()) {
-			int u = q.front();
-			q.pop();
-
-			for (int v : adj[u]) {
-				if (!visited[v] && capacity[u][v] > 0) {
-					q.push(v);
-					parent[v] = u;
-					visited[v] = true;
-				}
-			}
-		}
-
-		return visited[SINK];
-	}
-
-	// Edmonds-Karp algorithm for maximum flow
-	int maxFlow() {
-		vector<int> parent(V);
-		int max_flow = 0;
-
-		while (bfs(parent)) {
-			int path_flow = INT_MAX;
-			for (int v = SINK; v != SOURCE; v = parent[v]) {
-				int u = parent[v];
-				path_flow = min(path_flow, capacity[u][v]);
-			}
-
-			for (int v = SINK; v != SOURCE; v = parent[v]) {
-				int u = parent[v];
-				capacity[u][v] -= path_flow;
-				capacity[v][u] += path_flow;
-			}
-
-			max_flow += path_flow;
-		}
-
-		return max_flow;
-	}
 };
 
-// Read dice from input file
-vector<string> readDice(const string& filename) {
-	vector<string> dice;
-	ifstream file(filename);
-	string die;
-	while (file >> die) {
-		dice.push_back(die);
+// A double ended queue is used for Edmonds-Karp algorithm to find the augmenting path 
+class Graph {
+public:
+	Graph(vector <string>);
+~Graph();
+	deque <int> q;
+	vector <pair<int,int> > path;
+	vector <Node *> nodes;
+	void reset();
+	void makegraph(string);
+	void findpath();
+	void adjust();
+	void  makepath();
+	vector <string> dice;
+
+};
+
+// Sets the dice vector equal to the given vector 
+Graph::Graph(vector <string> s1) {
+	int i, j;
+	Node *n;
+
+	dice = s1;
+	nodes.resize((2*dice.size())+2);
+
+	// Initialize all nodes
+	for (i = 0; i < nodes.size(); i++) {
+		n = new Node;
+		if (i == 0 || i == nodes.size()-1) 
+			n->booleans.resize(256, 1);
+		else
+			n->booleans.resize(256, 0);
+		n->id = i;
+		n->dist = -1;
+		n->backedge = NULL;
+		nodes[i] = n;
 	}
-	return dice;
-}
 
-// Read words from input file
-vector<string> readWords(const string& filename) {
-	vector<string> words;
-	ifstream file(filename);
-	string word;
-	while (file >> word) {
-		words.push_back(word);
-	}
-	return words;
-}
-
-// Check if a word can be spelled using the given dice
-bool canSpellWord(const vector<string>& dice, const string& word) {
-	size_t V = 2 + dice.size() + word.length();
-	Graph g(static_cast<int>(V));
-
-	// Add edges from source to dice
-	for (size_t i = 0; i < dice.size(); i++) {
-		g.addEdge(SOURCE, static_cast<int>(i + 2));
-	}
-
-	// Add edges from letters to sink
-	for (size_t i = 0; i < word.length(); i++) {
-		g.addEdge(static_cast<int>(i + dice.size() + 2), SINK);
-	}
-
-	// Add edges from dice to letters
-	for (size_t i = 0; i < dice.size(); i++) {
-		for (size_t j = 0; j < word.length(); j++) {
-			if (dice[i].find(word[j]) != string::npos) {
-				g.addEdge(static_cast<int>(i + 2), static_cast<int>(j + dice.size() + 2));
+	// Set the indices of the boolean vector to true if the die contains that letter.
+	for (i = 0; i < dice.size(); i++) {
+		for (j = 0; j < dice[i].size(); j++) {
+			if (nodes[i+1]->booleans[dice[i][j]] == 0) {
+				nodes[i+1]->booleans[dice[i][j]] = 1;
 			}
 		}
 	}
 
-	// Check if maximum flow equals word length
-	return g.maxFlow() == static_cast<int>(word.length());
+	for (i = 1; i < (1 + dice.size()); i++) {
+		nodes[0]->adj.insert(i);
+	}
+	for (i = 1 + dice.size(); i < nodes.size()-1; i++) {
+		nodes[i]->adj.insert(nodes.size()-1);
+	}
 }
 
-// Get the order of dice used to spell a word
-vector<int> getDiceOrder(const vector<string>& dice, const string& word) {
-	vector<int> order;
-	vector<bool> used(dice.size(), false);
+Graph::~Graph() {
+	int i;
+	for (i = 0; i < nodes.size(); i++) {
+		delete nodes[i];
+	}
+	nodes.clear();
+}
 
-	for (char c : word) {
-		for (size_t i = 0; i < dice.size(); i++) {
-			if (!used[i] && dice[i].find(c) != string::npos) {
-				order.push_back(static_cast<int>(i));
-				used[i] = true;
-				break;
+void Graph::makegraph(string word) {
+	int i, j;
+
+	if (word.size() > dice.size()) {
+		cout << "Cannot spell " << word << endl;
+		return;
+	}
+
+	// Adds edges from dice to a letter in the word if the die contains that letter
+	for (i = 1; i < (1 + dice.size()); i++) {
+		for (j = 0; j < word.size(); j++) {
+			if (nodes[i]->booleans[word[j]] == 1) {
+				nodes[i]->adj.insert(j + (1 + dice.size()));
 			}
 		}
 	}
-
-	return order;
 }
 
-int main(int argc, char* argv[]) {
-	if (argc != 3) {
-		cerr << "Usage: " << argv[0] << " <dice_file> <words_file>" << endl;
-		return 1;
+void Graph::reset() {
+	int i;
+
+	for (i = 0; i < nodes.size(); i++) {
+		nodes[i]->adj.clear();
+		nodes[i]->backedge = NULL;
+		nodes[i]->dist = -1;
 	}
 
-	// Read input files
-	vector<string> dice = readDice(argv[1]);
-	vector<string> words = readWords(argv[2]);
+	for (i = 1; i < (1 + dice.size()); i++) {
+		nodes[0]->adj.insert(i);
+	}
+	for (i = 1 + dice.size(); i < nodes.size()-1; i++) {
+		nodes[i]->adj.insert(nodes.size()-1);
+	}
+}
 
-	// Process each word
-	for (const string& word : words) {
-		if (canSpellWord(dice, word)) {
-			vector<int> order = getDiceOrder(dice, word);
-			// Output the dice order and word
-			for (size_t i = 0; i < order.size(); i++) {
-				cout << order[i];
-				if (i < order.size() - 1) cout << ",";
+void Graph::findpath() {
+	int i;
+	Node *n;
+	set <int>::iterator sit;
+
+	// Continue until the queue is empty. 
+	while(q.size() != 0) {
+		n = nodes[*(q.begin())];
+		q.pop_front();
+		for(sit = n->adj.begin(); sit != n->adj.end(); sit++) {
+			if (nodes[(*sit)]->dist == -1) {
+				nodes[(*sit)]->dist = 1 + n->dist;
+				nodes[(*sit)]->backedge = n;
+				q.push_back((*sit));
 			}
-			cout << ": " << word << endl;
-		} else {
-			cout << "Cannot spell " << word << endl;
 		}
 	}
+}
 
+void Graph::makepath() {
+	int j;
+	Node *n;
+	n = nodes[nodes.size()-1];
+	while (n->backedge != NULL) {
+		path.push_back(make_pair(n->id, n->backedge->id));
+		n = n->backedge;
+	}
+}
+
+// Implements the network flow calculations.
+void Graph::adjust() {
+	int i, j;
+	Node *n;
+	set <int>::iterator sit;
+
+	for (i = 0; i < path.size(); i++) {
+		n = nodes[path[i].second];
+		sit = n->adj.find(path[i].first);
+		if (sit != n->adj.end()) {
+			n->adj.erase(sit);
+		}
+		nodes[path[i].first]->adj.insert(path[i].second);
+	}
+}
+
+int main(int argc, char *argv[]) {
+	int i, j;						
+	int count;				
+	ifstream file1, file2;	
+	string line;			
+	Graph *g;				
+	vector <string> dice, words;	
+	set <int>::iterator sit;	// Traverses adjacency list
+	count = 0;
+
+	file1.open(argv[1]);
+	while (getline(file1, line)) {
+		dice.push_back(line);
+	}
+	file2.open(argv[2]);
+	while (getline(file2, line)) {
+		words.push_back(line);
+	}
+	file1.close();
+	file2.close();
+	g = new Graph(dice);
+
+	// The words vector is traversed and the graph is updated for each word.
+	for (i = 0; i < words.size(); i++) {
+		g->makegraph(words[i]);
+		g->nodes[0]->dist = 0;
+		g->q.push_back(0);
+		g->findpath();
+
+		while(g->nodes[g->nodes.size()-1]->backedge != NULL  && count < words[i].size()) {
+			g->makepath();
+			g->adjust();
+			g->path.clear();
+			for (j = 0; j < g->nodes.size(); j++) {
+				g->nodes[j]->backedge = NULL;
+				g->nodes[j]->dist = -1;
+			}
+			g->nodes[0]->dist = 0;
+			g->q.push_back(0);
+			g->findpath();
+			count++;
+		}
+
+		if (count == words[i].size()) {
+			for(j = 0; j < words[i].size(); j++) {
+				sit = g->nodes[j + (1 + dice.size())]->adj.begin();
+				if (j == words[i].size() - 1) {
+					cout << (*sit) - 1 << ": ";
+				}
+				else {
+					cout << (*sit) - 1 << ",";
+				}
+			}
+			cout << words[i] << endl;
+		}
+		else {
+			cout << "Cannot spell " << words[i] << endl;
+		}
+
+		/* The graph and count are reset to prep for the next word call. */
+		g->reset();
+		count = 0;
+	}
 	return 0;
 }
