@@ -44,7 +44,7 @@ public:
 
 // Sets the dice vector equal to the given vector
 Graph::Graph(vector<string> s1) {
-  int i, j;
+  size_t i, j;
   Node *n;
 
   dice = s1;
@@ -89,7 +89,7 @@ Graph::Graph(vector<string> s1) {
 
 Graph::~Graph() {
   // Deletes all nodes and clear the vectors.
-  int i;
+  size_t i;
   for (i = 0; i < nodes.size(); i++) {
     delete nodes[i];
   }
@@ -97,7 +97,7 @@ Graph::~Graph() {
 }
 
 void Graph::makegraph(string word) {
-  int i, j;
+  size_t i, j;
 
   // Can't spell word if there are more words than dices.
   if (word.size() > dice.size()) {
@@ -118,7 +118,7 @@ void Graph::makegraph(string word) {
 
 // Resets the graph to its initial state (before processing each word).
 void Graph::reset() {
-  int i;
+  size_t i;
 
   // Clears all existing nodes
   for (i = 0; i < nodes.size(); i++) {
@@ -141,7 +141,6 @@ void Graph::reset() {
 
 // Implements BFS to find an augmenting path
 void Graph::findpath() {
-  int i;
   Node *n;
   set<int>::iterator sit;
 
@@ -170,7 +169,6 @@ void Graph::findpath() {
 
 // Constructs the augmenting path found by BFS.
 void Graph::makepath() {
-  int j;
   Node *n;
   n = nodes[nodes.size() - 1]; // Start from the sink node.
   // Trace back from the sink nodes using the backedges.
@@ -189,7 +187,7 @@ void Graph::makepath() {
 // and have the reverse edge be the way to tell the
 // iterator, or BFS, to go back and to find a different path.
 void Graph::adjust() {
-  int i, j;
+  size_t i;
   Node *n;
   set<int>::iterator sit;
 
@@ -205,8 +203,8 @@ void Graph::adjust() {
 }
 
 int main(int argc, char *argv[]) {
-  int i, j;
-  int count;
+  size_t i, j;
+  size_t count;
   ifstream file1, file2;
   string line;
   Graph *g;
